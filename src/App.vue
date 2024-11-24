@@ -1,5 +1,6 @@
 <template>
   <!-- First small trial project! In addition on Vue.js It can be further developed endlessly :) -->
+
   <div class="profile-container">
     <div class="header">
       <h1>TROOD. Profile</h1>
@@ -40,14 +41,27 @@
         />
       </div>
 
-      <form class="profile-form">
+      <form class="profile-form" @submit.prevent="submitForm">
         <input type="text" v-model="profile.name" placeholder="Name" />
+        <span v-if="errors.name" class="error-message">{{ errors.name }}</span>
+
         <input type="text" v-model="profile.surname" placeholder="Lastname" />
+        <span v-if="errors.surname" class="error-message">{{ errors.surname }}</span>
+
         <input type="text" v-model="profile.jobTitle" placeholder="Job Title" />
+        <span v-if="errors.jobTitle" class="error-message">{{ errors.jobTitle }}</span>
+
         <input type="tel" v-model="profile.phone" placeholder="Phone" />
+        <span v-if="errors.phone" class="error-message">{{ errors.phone }}</span>
+
         <input type="email" v-model="profile.email" placeholder="Email" />
+        <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
+
         <input type="text" v-model="profile.address" placeholder="Address" />
+        <span v-if="errors.address" class="error-message">{{ errors.address }}</span>
+
         <input type="text" v-model="profile.pitch" placeholder="Pitch" />
+        <span v-if="errors.pitch" class="error-message">{{ errors.pitch }}</span>
 
         <label class="options">Show your profile in launchpad:</label>
         <div class="visibility-wrapper">
@@ -125,10 +139,10 @@
               </div>
 
               <button @click="clearProfile" class="remove-btn">🗑️</button>
-              <!-- when you click on the trash bin, the entire block is cleared -->
             </div>
           </div>
         </div>
+        <button type="submit">Save Profile</button>
       </form>
     </div>
   </div>
@@ -152,6 +166,15 @@ export default {
         potentialInterests: [],
         links: [],
       },
+      errors: {
+        name: null,
+        surname: null,
+        jobTitle: null,
+        phone: null,
+        email: null,
+        address: null,
+        pitch: null,
+      }
     };
   },
   methods: {
@@ -183,6 +206,61 @@ export default {
       };
       reader.readAsDataURL(file);
     },
+    validateForm() {
+      let isValid = true;
+      this.errors = {
+        name: null,
+        surname: null,
+        jobTitle: null,
+        phone: null,
+        email: null,
+        address: null,
+        pitch: null,
+      };
+
+      if (!this.profile.name) {
+        this.errors.name = "Name is required.";
+        isValid = false;
+      }
+      if (!this.profile.surname) {
+        this.errors.surname = "Surname is required.";
+        isValid = false;
+      }
+      if (!this.profile.jobTitle) {
+        this.errors.jobTitle = "Job title is required.";
+        isValid = false;
+      }
+      const phoneRegex = /^[0-9]{10}$/;
+      if (!this.profile.phone || !phoneRegex.test(this.profile.phone)) {
+        this.errors.phone = "Phone number must be 10 digits.";
+        isValid = false;
+      }
+      const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+      if (!this.profile.email || !emailRegex.test(this.profile.email)) {
+        this.errors.email = "Enter a valid email address.";
+        isValid = false;
+      }
+      if (!this.profile.address) {
+        this.errors.address = "Address is required.";
+        isValid = false;
+      }
+      if (!this.profile.pitch) {
+        this.errors.pitch = "Pitch is required.";
+        isValid = false;
+      }
+
+      return isValid;
+    },
+    submitForm() {
+      if (this.validateForm()) {
+        alert("Profile saved successfully!");
+        this.saveProfile();
+      }
+    },
+    saveProfile() {
+      const profileData = { ...this.profile, avatar: this.avatar };
+      localStorage.setItem("profile", JSON.stringify(profileData));
+    },
     addInterest() {
       if (this.profile.interests.length < 10) {
         const newInterest = prompt("Enter a new interest:");
@@ -200,11 +278,11 @@ export default {
     },
     addPotentialInterest() {
       if (this.profile.potentialInterests.length < 10) {
-        const newPotential = prompt("Enter a new potential interest:");
-        if (newPotential && newPotential.length <= 30) {
-          this.profile.potentialInterests.push(newPotential);
+        const newInterest = prompt("Enter a new potential interest:");
+        if (newInterest && newInterest.length <= 30) {
+          this.profile.potentialInterests.push(newInterest);
         } else {
-          alert("Potential interest must be up to 30 characters long.");
+          alert("Interest must be up to 30 characters long.");
         }
       } else {
         alert("You can add up to 10 potential interests only.");
@@ -214,55 +292,33 @@ export default {
       this.profile.potentialInterests.splice(index, 1);
     },
     addLink() {
-      if (this.profile.links.length < 10) {
+      if (this.profile.links.length < 5) {
         this.profile.links.push({ siteName: "", url: "" });
       } else {
-        alert("You can add up to 10 links only.");
+        alert("You can add up to 5 links only.");
       }
     },
     removeLink(index) {
       this.profile.links.splice(index, 1);
     },
     clearProfile() {
-      if (confirm("Are you sure you want to clear the profile?")) {
-        this.profile = {
-          name: "",
-          surname: "",
-          jobTitle: "",
-          phone: "",
-          email: "",
-          address: "",
-          pitch: "",
-          visibility: "private",
-          interests: [],
-          potentialInterests: [],
-          links: [],
-        };
-        this.avatar = null;
-        localStorage.removeItem("profile");
-      }
-    },
-  },
-  watch: {
-    profile: {
-      handler(newProfile) {
-        const profileData = { ...newProfile, avatar: this.avatar };
-        localStorage.setItem("profile", JSON.stringify(profileData));
-      },
-      deep: true,
-    },
-    avatar(newAvatar) {
-      const profileData = { ...this.profile, avatar: newAvatar };
-      localStorage.setItem("profile", JSON.stringify(profileData));
-    },
+      this.profile.links = [];
+    }
   },
   mounted() {
     this.loadProfile();
-  },
+  }
 };
 </script>
 
 <style scoped>
+/* styles for validation errors and input fields */
+.error-message {
+  color: red;
+  font-size: 12px;
+}
+
+
 /* General Container */
 .profile-container {
   display: flex;

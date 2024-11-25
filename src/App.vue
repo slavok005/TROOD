@@ -145,8 +145,9 @@
         </div>
 
         <div class="button-group">
+          <button type="submit" class="save-btn">Save Profile</button>
   <button @click.prevent="clearAllFields" class="clear-btn">Clear</button>
-  <button type="submit" class="save-btn">Save Profile</button>
+ 
 </div>
       </form>
     </div>
@@ -685,7 +686,7 @@ button-group {
   transform: scale(1.05); 
 }
 .clear-btn {
-  margin-right: 30px; 
+  margin-left: 30px; 
 }
 .save-btn {
   background: linear-gradient(180deg, #76c2e7 0%, #4990c0 100%);

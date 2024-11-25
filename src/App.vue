@@ -1,6 +1,7 @@
 <template>
   <!-- First small trial project! In addition on Vue.js It can be further developed endlessly :) -->
 
+
   <div class="profile-container">
     <div class="header">
       <h1>TROOD. Profile</h1>
@@ -138,11 +139,15 @@
                 />
               </div>
 
-              <button @click="clearProfile" class="remove-btn">🗑️</button>
+              <button @click="removeLink(index)" class="remove-btn">🗑️</button>
             </div>
           </div>
         </div>
-        <button type="submit">Save Profile</button>
+
+        <div class="button-group">
+  <button @click.prevent="clearAllFields" class="clear-btn">Clear</button>
+  <button type="submit" class="save-btn">Save Profile</button>
+</div>
       </form>
     </div>
   </div>
@@ -174,7 +179,7 @@ export default {
         email: null,
         address: null,
         pitch: null,
-      }
+      },
     };
   },
   methods: {
@@ -282,7 +287,7 @@ export default {
         if (newInterest && newInterest.length <= 30) {
           this.profile.potentialInterests.push(newInterest);
         } else {
-          alert("Interest must be up to 30 characters long.");
+          alert("Potential interest must be up to 30 characters long.");
         }
       } else {
         alert("You can add up to 10 potential interests only.");
@@ -292,22 +297,42 @@ export default {
       this.profile.potentialInterests.splice(index, 1);
     },
     addLink() {
-      if (this.profile.links.length < 5) {
-        this.profile.links.push({ siteName: "", url: "" });
-      } else {
-        alert("You can add up to 5 links only.");
-      }
+      this.profile.links.push({ siteName: "", url: "" });
     },
     removeLink(index) {
       this.profile.links.splice(index, 1);
     },
-    clearProfile() {
-      this.profile.links = [];
-    }
+    clearAllFields() {
+      this.avatar = null;
+      this.profile = {
+        name: "",
+        surname: "",
+        jobTitle: "",
+        phone: "",
+        email: "",
+        address: "",
+        pitch: "",
+        visibility: "private",
+        interests: [],
+        potentialInterests: [],
+        links: [],
+      };
+      this.errors = {
+        name: null,
+        surname: null,
+        jobTitle: null,
+        phone: null,
+        email: null,
+        address: null,
+        pitch: null,
+      };
+      localStorage.removeItem("profile");
+      alert("The form is cleared!");
+    },
   },
   mounted() {
     this.loadProfile();
-  }
+  },
 };
 </script>
 
@@ -630,5 +655,43 @@ button.add-btn {
   position: absolute;
   top: calc(20px + 8cm + 90px);
   left: 20px;
+}
+button-group {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center; 
+  margin-top: 20px;
+  border: 2px solid #49535c; 
+  border-radius: 15px;
+  padding: 10px;
+  background-color: #f5f5f5; 
+}
+
+.clear-btn, .save-btn {
+  background: linear-gradient(180deg, #76c2e7 0%, #4990c0 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.clear-btn:hover, .save-btn:hover {
+  
+  background: #d2cdcd; 
+  transform: scale(1.05); 
+}
+.clear-btn {
+  margin-right: 30px; 
+}
+.save-btn {
+  background: linear-gradient(180deg, #76c2e7 0%, #4990c0 100%);
+}
+
+.save-btn:hover {
+  background:  #d2cdcd; 
 }
 </style>

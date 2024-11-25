@@ -1,7 +1,6 @@
 <template>
   <!-- First small trial project! In addition on Vue.js It can be further developed endlessly :) -->
 
-
   <div class="profile-container">
     <div class="header">
       <h1>TROOD. Profile</h1>
@@ -146,9 +145,8 @@
 
         <div class="button-group">
           <button type="submit" class="save-btn">Save Profile</button>
-  <button @click.prevent="clearAllFields" class="clear-btn">Clear</button>
- 
-</div>
+          <button @click.prevent="clearAllFields" class="clear-btn">Clear</button>
+        </div>
       </form>
     </div>
   </div>
@@ -224,34 +222,31 @@ export default {
         pitch: null,
       };
 
-      if (!this.profile.name) {
-        this.errors.name = "Name is required.";
+      const nameRegex = /^[a-zA-Zа-яА-ЯёЁ\s-]{2,50}$/;
+      if (!this.profile.name || !nameRegex.test(this.profile.name)) {
+        this.errors.name = "Invalid name (2-50 letters, spaces, or hyphens).";
         isValid = false;
       }
-      if (!this.profile.surname) {
-        this.errors.surname = "Surname is required.";
+      if (!this.profile.surname || !nameRegex.test(this.profile.surname)) {
+        this.errors.surname = "Invalid surname (2-50 letters, spaces, or hyphens).";
         isValid = false;
       }
-      if (!this.profile.jobTitle) {
-        this.errors.jobTitle = "Job title is required.";
-        isValid = false;
-      }
-      const phoneRegex = /^[0-9]{10}$/;
+
+      const phoneRegex = /^\+\d{10,15}$/;
       if (!this.profile.phone || !phoneRegex.test(this.profile.phone)) {
-        this.errors.phone = "Phone number must be 10 digits.";
+        this.errors.phone = "Invalid phone format (+79999999999).";
         isValid = false;
       }
+
       const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
       if (!this.profile.email || !emailRegex.test(this.profile.email)) {
         this.errors.email = "Enter a valid email address.";
         isValid = false;
       }
-      if (!this.profile.address) {
-        this.errors.address = "Address is required.";
-        isValid = false;
-      }
-      if (!this.profile.pitch) {
-        this.errors.pitch = "Pitch is required.";
+
+      const addressRegex = /^[a-zA-Zа-яА-ЯёЁ0-9\s,.-]{0,200}$/;
+      if (this.profile.address && !addressRegex.test(this.profile.address)) {
+        this.errors.address = "Invalid address.";
         isValid = false;
       }
 
@@ -282,29 +277,7 @@ export default {
     removeInterest(index) {
       this.profile.interests.splice(index, 1);
     },
-    addPotentialInterest() {
-      if (this.profile.potentialInterests.length < 10) {
-        const newInterest = prompt("Enter a new potential interest:");
-        if (newInterest && newInterest.length <= 30) {
-          this.profile.potentialInterests.push(newInterest);
-        } else {
-          alert("Potential interest must be up to 30 characters long.");
-        }
-      } else {
-        alert("You can add up to 10 potential interests only.");
-      }
-    },
-    removePotentialInterest(index) {
-      this.profile.potentialInterests.splice(index, 1);
-    },
-    addLink() {
-      this.profile.links.push({ siteName: "", url: "" });
-    },
-    removeLink(index) {
-      this.profile.links.splice(index, 1);
-    },
     clearAllFields() {
-      this.avatar = null;
       this.profile = {
         name: "",
         surname: "",
@@ -318,17 +291,32 @@ export default {
         potentialInterests: [],
         links: [],
       };
-      this.errors = {
-        name: null,
-        surname: null,
-        jobTitle: null,
-        phone: null,
-        email: null,
-        address: null,
-        pitch: null,
-      };
-      localStorage.removeItem("profile");
-      alert("The form is cleared!");
+      this.avatar = null;
+      this.errors = {};
+      alert("All fields have been cleared.");
+    },
+    addLink() {
+      if (this.profile.links.length < 10) {
+        this.profile.links.push({ siteName: "", url: "" });
+      } else {
+        alert("Maximum 10 links allowed.");
+      }
+    },
+    removeLink(index) {
+      this.profile.links.splice(index, 1);
+    },
+    addPotentialInterest() {
+      if (this.profile.potentialInterests.length < 5) {
+        const newInterest = prompt("Enter a new potential interest:");
+        if (newInterest) {
+          this.profile.potentialInterests.push(newInterest);
+        }
+      } else {
+        alert("Maximum 5 potential interests allowed.");
+      }
+    },
+    removePotentialInterest(index) {
+      this.profile.potentialInterests.splice(index, 1);
     },
   },
   mounted() {
@@ -338,6 +326,19 @@ export default {
 </script>
 
 <style scoped>
+/* Add necessary styles */
+</style>
+
+
+<style scoped>
+/* Add necessary styles for the component */
+.error-message {
+  color: red;
+  font-size: 12px;
+}
+.form-group {
+  margin-bottom: 15px;
+}
 /* styles for validation errors and input fields */
 .error-message {
   color: red;
